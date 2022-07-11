@@ -1,14 +1,25 @@
+import { getDomain } from "lib/utils";
 import Head from "next/head";
 import React from "react";
 
 export const Page = ({ children }: { children: React.ReactNode }) => {
+  const siteTitle = "URL Shortener";
   return (
     <>
       <Head>
-        <link rel="icon" href="/images/meta/favicon.ico" />
-        <title>URL Shortener</title>
+        <link rel="icon" href="/images/meta/favicon.png" />
+        <title>{siteTitle}</title>
+        <meta
+          name="description"
+          content="An URL shortener that will shorten your URLs so that they become shorter"
+        />
+        <meta name="og:title" content={siteTitle} />
+        <meta
+          property="og:image"
+          content={`${getDomain()}/images/meta/og.png`}
+        />
+        <meta name="twitter:card" content="summary_large_image" />
       </Head>
-      <header></header>
       <main className={`from-gray-900 to-gray-600 bg-gradient-to-br`}>
         <div className={`container mx-auto w-80 h-screen flex items-center`}>
           {children}
