@@ -6,11 +6,11 @@ const BASE58_SCHEME_ALPHABET =
   "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
 export const getDomain = (): string => {
-  return "https://dooart.link";
+  return process.env.NEXT_PUBLIC_APP_DOMAIN as string;
 };
 
 export const getDomainWithoutScheme = (): string => {
-  return getDomain().substring("https://".length);
+  return new URL(getDomain()).host;
 };
 
 export const isValidCustomLink = (customLink: string): boolean => {
