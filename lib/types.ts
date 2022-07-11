@@ -4,6 +4,7 @@ export interface ShortenedLink {
   timesAccessed: number;
   createdAt: number;
   lastAccessedAt?: number;
+  existing?: boolean;
 }
 
 export interface NewLinkFormData {

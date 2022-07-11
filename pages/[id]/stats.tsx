@@ -3,13 +3,19 @@ import { Card, Page } from "components/page";
 import useBooleanTimeout from "lib/boolean-timeout";
 import { findLinkById } from "lib/redis";
 import { ShortenedLink } from "lib/types";
-import { formatUnixTime, getDomain } from "lib/utils";
+import { formatRelativeUnixTime, formatUnixTime, getDomain } from "lib/utils";
 import { GetServerSideProps } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 
-export default ({ link }: { link: ShortenedLink }) => {
+export default ({
+  link,
+  existing,
+}: {
+  link: ShortenedLink;
+  existing: boolean;
+}) => {
   return (
     <Page>
       <Card>
@@ -17,20 +23,30 @@ export default ({ link }: { link: ShortenedLink }) => {
           <Image src="/images/pinch.png" width={32} height={32} />
           URL Shortener
         </h1>
-        <LinkStats link={link} />
+        <LinkStats link={link} existing={existing} />
       </Card>
     </Page>
   );
 };
 
-const LinkStats = ({ link }: { link: ShortenedLink }) => {
+const LinkStats = ({
+  link,
+  existing,
+}: {
+  link: ShortenedLink;
+  existing: boolean;
+}) => {
   const shortUrl = `${getDomain()}/${link.id}`;
 
   const [isCopying, setIsCopying] = useBooleanTimeout();
-
+  console.log(existing);
   return (
     <>
-      <Label label="Your short URL">
+      <Label
+        label={
+          existing ? "This URL already has a short link:" : "Your short URL"
+        }
+      >
         <input
           type="text"
           value={shortUrl}
@@ -49,7 +65,7 @@ const LinkStats = ({ link }: { link: ShortenedLink }) => {
             {isCopying && (
               <Image src="/images/check.svg" width={20} height={20} />
             )}
-            {isCopying ? "Copied to clipboard" : "Copy short URL"}
+            {isCopying ? "Copied to clipboard" : "Copy short link"}
           </button>
         </CopyToClipboard>
       </div>
@@ -63,9 +79,9 @@ const LinkStats = ({ link }: { link: ShortenedLink }) => {
       <Label label="Number of accesses">
         <DisplayText>{link.timesAccessed || 0}</DisplayText>
       </Label>
-      <Label label="Last accessed at">
+      <Label label="Last accessed">
         <DisplayText>
-          {formatUnixTime(link.lastAccessedAt) || "Never"}
+          {formatRelativeUnixTime(link.lastAccessedAt) || "Never"}
         </DisplayText>
       </Label>
       <hr />
@@ -82,14 +98,14 @@ const LinkStats = ({ link }: { link: ShortenedLink }) => {
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   try {
-    const { id }: { id?: string } = query;
+    const { id, existing }: { id?: string; existing?: boolean } = query;
     if (!id) return { notFound: true };
 
     const link = await findLinkById(id as string);
     if (!link) return { notFound: true };
 
     return {
-      props: { link: { ...link, id } },
+      props: { link: { ...link, id }, existing },
     };
   } catch (e) {
     throw e;

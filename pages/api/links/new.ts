@@ -1,5 +1,4 @@
-import { Redis } from "@upstash/redis";
-import type { ShortenedLink, NewLinkFormData } from "lib/types";
+import { ReasonPhrases, StatusCodes } from "http-status-codes";
 import {
   checkIdExistence,
   findLinkById,
@@ -7,7 +6,9 @@ import {
   saveLink,
   saveReverseLink,
 } from "lib/redis";
+import type { NewLinkFormData, ShortenedLink } from "lib/types";
 import { newId } from "lib/utils";
+import { isValidCustomLink, isValidUrl } from "lib/validation";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 const MAX_TRIES = 5;
@@ -17,9 +18,7 @@ export default async (
   res: NextApiResponse<ShortenedLink>
 ) => {
   try {
-    if (req.method !== "POST") {
-      throw new Error("Method not supported");
-    }
+    if (!validate(req, res)) return;
 
     const linkData: NewLinkFormData = req.body;
 
@@ -27,8 +26,11 @@ export default async (
 
     let link: ShortenedLink;
     if (existingLinkId) {
-      link = await findLinkById(existingLinkId);
-      link.id = existingLinkId;
+      link = {
+        ...(await findLinkById(existingLinkId)),
+        id: existingLinkId,
+        existing: true,
+      };
     } else {
       const newLinkId = await makeLinkId(linkData);
       link = {
@@ -59,4 +61,20 @@ async function makeLinkId(linkData: NewLinkFormData): Promise<string> {
     }
   }
   return id;
+}
+function validate(req: NextApiRequest, res: NextApiResponse): boolean {
+  if (req.method !== "POST") {
+    res
+      .status(StatusCodes.METHOD_NOT_ALLOWED)
+      .send(ReasonPhrases.METHOD_NOT_ALLOWED);
+    return false;
+  }
+
+  const { url, customLink }: NewLinkFormData = req.body;
+  if (!isValidUrl(url) || !isValidCustomLink(customLink)) {
+    res.status(StatusCodes.BAD_REQUEST).send(ReasonPhrases.BAD_REQUEST);
+    return false;
+  }
+
+  return true;
 }

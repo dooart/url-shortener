@@ -1,9 +1,9 @@
 import axios from "axios";
 import { Field } from "components/forms";
 import { Card, Page, Spinner } from "components/page";
-import isUrl from "is-url";
-import { ShortenedLink, NewLinkFormData } from "lib/types";
-import { getDomainWithoutScheme, isValidCustomLink } from "lib/utils";
+import { NewLinkFormData, ShortenedLink } from "lib/types";
+import { getDomainWithoutScheme } from "lib/utils";
+import { isValidUrl, isValidCustomLink } from "lib/validation";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
@@ -37,7 +37,10 @@ const NewLinkForm = () => {
       "/api/links/new",
       formData
     );
-    router.push(`/${newLink.id}/stats`);
+    await router.push({
+      pathname: "/[id]/stats",
+      query: { id: newLink.id, existing: newLink.existing },
+    });
   };
 
   return (
@@ -58,7 +61,7 @@ const NewLinkForm = () => {
           {...register("url", {
             required: true,
             validate: {
-              validUrl: isUrl,
+              validUrl: isValidUrl,
             },
           })}
         />
@@ -87,8 +90,7 @@ const NewLinkForm = () => {
             {...register("customLink", {
               minLength: 4,
               validate: {
-                validCustomLink: (link) =>
-                  !link || !link.length || isValidCustomLink(link),
+                validCustomLink: isValidCustomLink,
               },
             })}
           />

@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, formatDistance } from "date-fns";
 import { customAlphabet } from "nanoid";
 
 // eliminates visual ambiguity by excluding certain characters such as 0, O, I, l
@@ -13,10 +13,6 @@ export const getDomainWithoutScheme = (): string => {
   return new URL(getDomain()).host;
 };
 
-export const isValidCustomLink = (customLink: string): boolean => {
-  return !!customLink.match(/^[\w-]+$/);
-};
-
 export function newId() {
   const nanoid = customAlphabet(BASE58_SCHEME_ALPHABET, 6);
   return nanoid();
@@ -27,4 +23,10 @@ export function formatUnixTime(unixTime?: number): string | null {
 
   const pattern = "MMMM d, yyyy h:mm aaa";
   return format(new Date(unixTime), pattern);
+}
+
+export function formatRelativeUnixTime(unixTime?: number): string | null {
+  if (!unixTime) return null;
+
+  return formatDistance(new Date(unixTime), new Date(), { addSuffix: true });
 }
