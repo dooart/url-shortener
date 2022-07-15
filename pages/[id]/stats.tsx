@@ -39,7 +39,6 @@ const LinkStats = ({
   const shortUrl = `${getDomain()}/${link.id}`;
 
   const [isCopying, setIsCopying] = useBooleanTimeout();
-  console.log(existing);
   return (
     <>
       <Label
@@ -71,7 +70,13 @@ const LinkStats = ({
       </div>
       <hr className="mt-3" />
       <Label label="Destination URL">
-        <DisplayText>{link.url}</DisplayText>
+        <input
+          type="text"
+          readOnly
+          value={link.url}
+          className="text-sm text-ellipsis outline-none"
+          onFocus={(event) => event.target.select()}
+        />
       </Label>
       <Label label="Created at">
         <DisplayText>{formatUnixTime(link.createdAt)}</DisplayText>
@@ -98,14 +103,17 @@ const LinkStats = ({
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   try {
-    const { id, existing }: { id?: string; existing?: boolean } = query;
+    const { id, existing }: { id?: string; existing?: string } = query;
     if (!id) return { notFound: true };
 
     const link = await findLinkById(id as string);
     if (!link) return { notFound: true };
 
     return {
-      props: { link: { ...link, id }, existing },
+      props: {
+        link: { ...link, id },
+        existing: existing === "true",
+      },
     };
   } catch (e) {
     throw e;
