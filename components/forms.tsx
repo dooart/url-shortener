@@ -1,5 +1,5 @@
 import React from "react";
-import { FieldErrorsImpl, FieldValues, UseFormReturn } from "react-hook-form";
+import { FieldError, FieldErrors, FieldValues } from "react-hook-form";
 
 interface CustomErrorMessages {
   [key: string]: string;
@@ -29,15 +29,17 @@ export const Field = ({
 }: {
   label: string;
   name: string;
-  errors: FieldErrorsImpl;
+  errors: FieldErrors<FieldValues>;
   customErrorMessages?: CustomErrorMessages;
   children: React.ReactNode;
 }) => {
+  const fieldError = errors[name] as FieldError | undefined;
+
   return (
     <Label label={label}>
       <div>{children}</div>
       <FormError
-        error={errors[name] as unknown as { type: string }}
+        error={fieldError}
         customErrorMessages={customErrorMessages}
       />
     </Label>
@@ -48,7 +50,7 @@ export const FormError = ({
   error,
   customErrorMessages,
 }: {
-  error?: { type: string } | null;
+  error?: FieldError | null;
   customErrorMessages?: CustomErrorMessages;
 }) => {
   if (!error) return <></>;

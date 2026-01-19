@@ -20,7 +20,7 @@ export default ({
     <Page>
       <Card>
         <h1 className={`text-xl font-bold flex gap-3 items-center`}>
-          <Image src="/images/pinch.png" width={32} height={32} />
+          <Image src="/images/pinch.png" width={32} height={32} alt="Pinch logo" />
           URL Shortener
         </h1>
         <LinkStats link={link} existing={existing} />
@@ -62,7 +62,7 @@ const LinkStats = ({
             disabled={isCopying}
           >
             {isCopying && (
-              <Image src="/images/check.svg" width={20} height={20} />
+              <Image src="/images/check.svg" width={20} height={20} alt="Copied" />
             )}
             {isCopying ? "Copied to clipboard" : "Copy short link"}
           </button>

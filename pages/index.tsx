@@ -13,7 +13,7 @@ export default () => {
     <Page>
       <Card>
         <h1 className={`text-xl font-bold flex gap-3 items-center`}>
-          <Image src="/images/pinch.png" width={32} height={32} />
+          <Image src="/images/pinch.png" width={32} height={32} alt="Pinch logo" />
           URL Shortener
         </h1>
         <NewLinkForm />
